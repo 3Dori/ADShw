@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import collections
 from xlwt import *
 
@@ -51,7 +53,7 @@ def write_data(data):
     wb.save('test_report.xls')
 
 
-def plot_data(data):
+def plot_time_ratio(data):
     import matplotlib.pyplot as plt
     size_set = (100, 1000, 10000, 100000, 1000000)
     method_set = ('insert', 'buildheap')
@@ -62,12 +64,12 @@ def plot_data(data):
     style_index = 0
     for size in size_set:
         for method in method_set:
-            ratio_time = [(record.ratio, record.time)
+            ratio_time_tuple = [(record.ratio, record.time)
                           for record in data
                           if record.size == size and record.method == method]    # [(ratio1, time1), (ratio2, time2), ...]
-            zipped_ratio_time = zip(*ratio_time)    # [(ratio1, ratio2, ...), (time1, time2, ...)]
+            ratio_time = zip(*ratio_time_tuple)    # [(ratio1, ratio2, ...), (time1, time2, ...)]
             style = style_set[style_index]
-            plot_data.extend([zipped_ratio_time[0], zipped_ratio_time[1], style])
+            plot_data.extend([ratio_time[0], ratio_time[1], style])
             style_index += 1
 
     plt.plot(*plot_data)
@@ -83,12 +85,42 @@ def plot_data(data):
     plt.legend(['insert', 'buildheap'], loc='upper left')
     plt.savefig('time_ratio_ordinary.pdf', format='pdf', bbox_inches='tight', pad_inches=0.2)
     plt.savefig('time_ratio_ordinary', bbox_inches='tight', pad_inches=0.2)
+    plt.clf()
     #plt.show()
+
+
+def plot_time_size(data):
+    import matplotlib.pyplot as plt
+
+    insert_tuple_data = [(record.size, record.time)
+                         for record in data
+                         if record.method == 'insert' and record.ratio == 1]
+    buildheap_tuple_data = [(record.size, record.time)
+                            for record in data
+                            if record.method == 'buildheap' and record.ratio == 1]
+    insert_data = zip(*insert_tuple_data)
+    buildheap_data = zip(*buildheap_tuple_data)
+    plot_data = [insert_data[0], insert_data[1], 'r--',
+                 buildheap_data[0], buildheap_data[1], 'r:']
+
+    plt.plot(*plot_data)
+    #plt.loglog()
+    plt.xlabel('size')
+    plt.ylabel('time (s)')
+    plt.title('time - size relationship of merging operation on ordinart heaps')
+    plt.text(800000, 0.018, 'insert')
+    plt.text(800000, 0.007, 'buildheap')
+    plt.savefig('time_size_ordinary.pdf', format='pdf')
+    plt.savefig('time_size_ordinary')
+    plt.clf()
+    #plt.show()
+
 
 def main():
     data = read_data()
     #write_data(data)
-    plot_data(data)
+    plot_time_ratio(data)
+    plot_time_size(data)
 
 if __name__ == '__main__':
     main()
