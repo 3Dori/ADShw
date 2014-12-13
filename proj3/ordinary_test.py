@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 import subprocess
 SIZE = 1000000
 REPEAT = 10
@@ -12,10 +14,12 @@ def multi_10_from_100(max_size):
         size *= 10
 
 def main():
+    size_set = (100, 1000, 10000, 100000, 200000, 400000, 600000, 800000, 1000000)
     methods = {'insert': 0, 'buildheap': 1}
     with open('result.txt', 'w') as f:
         f.write('')    # clear file
-    for size in multi_10_from_100(SIZE):
+    #for size in multi_10_from_100(SIZE):
+    for size in size_set:
         for percentage in range(0, 110, 10):
             size1 = get_partition(percentage, size // 2)
             size2 = size - size1
