@@ -1,18 +1,17 @@
 import random
 
 # make sure that SIZE1 + SIZE2 <= CAPACITY
-CAPACITY = 1000000
-POPULATION = range(-CAPACITY // 2, CAPACITY // 2)
-SIZE1 = 999999
-SIZE2 = 1
+CAPACITY = 100000
+#POPULATION = list(map(str, range(-CAPACITY // 100, CAPACITY // 100))) * 2
+range_mill = range(-500000, 500000)
+population = random.sample(range_mill, 25000) + random.sample(range_mill, 25000) + random.sample(range_mill, 25000) + random.sample(range_mill, 25000)
+population = list(map(str, population))
 
 def main():
-    print(CAPACITY)
-    print(SIZE1, SIZE2)
-    data = random.sample(POPULATION, (SIZE1 + SIZE2))
-    #print(len(POPULATION))
-    print(' '.join(map(str, data[:SIZE1])))
-    print(' '.join(map(str, data[SIZE1:])))
+    small_population = map(str, random.sample(range_mill, 10000))
+    with open('test_cases/test_all.txt', 'w') as f:
+        f.write(' '.join(small_population))
+    #print(' '.join(map(str, POPULATION)))
 
 if __name__ == '__main__':
     main()

@@ -6,6 +6,9 @@
 /* If the program loops forever, check SENTINEL and set its absolute value larger */
 #define INSERT 0
 #define BUILDHEAP 1
+#define REPEAT 100
+#define MAX_MERGE 101
+
 typedef struct ordinary_heap_record *OrdinaryHeap;
 struct ordinary_heap_record{
   int capacity;
@@ -17,45 +20,48 @@ OrdinaryHeap create_ordinary_heap(int capacity);
 void insert_ordinary_heap(int element, OrdinaryHeap H);
 int delete_min_ordinary_heap(OrdinaryHeap H);
 void dispose_ordinary_heap(OrdinaryHeap H);
+OrdinaryHeap merge_heap(OrdinaryHeap H1, OrdinaryHeap H2);
 OrdinaryHeap merge_ordinary_heap_build(OrdinaryHeap H1, OrdinaryHeap H2);
 OrdinaryHeap merge_ordinary_heap_insert(OrdinaryHeap H1, OrdinaryHeap H2);
+OrdinaryHeap copy_heap(OrdinaryHeap from, OrdinaryHeap to);
 
 int main(void){
-  OrdinaryHeap H1, H2, H;
-  int capacity, size1, size2;
+  OrdinaryHeap H[REPEAT][MAX_MERGE];
+  FILE *fp;
+  int size, each_size, merges;
   int method;
-  int tmp, i;
+  int x, i, merge_cnt, rpt;
   clock_t start, stop;
   double duration;
 
   /* initialize */
-  /* Input the capacity of heaps */
-  scanf("%d", &capacity);
-  /* Input the sizes of H1 and H2 */
-  scanf("%d%d", &size1, &size2);
-  /* Input merge method, 0 for insert, 1 for buildheap */
-  scanf("%d", &method);
+  fp = fopen("settings.txt", "r");
+  fscanf(fp, "%d%d", &size, &merges);
+  fclose(fp);
+  each_size = size / merges;
 
-  H1 = create_ordinary_heap(capacity);
-  H2 = create_ordinary_heap(capacity);
+  fp = fopen("test_cases/test_all.txt", "r");
+  for (merge_cnt = 0; merge_cnt < merges; merge_cnt++){
+    H[0][merge_cnt] = create_ordinary_heap(size);
+    for (i = 0; i < each_size; i++){
+      fscanf(fp, "%d", &x);
+      insert_ordinary_heap(x, H[0][merge_cnt]);
+    }
+  }
+  fclose(fp);
 
-  /* Input Heap data */
-  for (i = 0; i < size1; i++){
-    scanf("%d", &tmp);
-    insert_ordinary_heap(tmp, H1);
-  }
-  for (i = 0; i < size2; i++){
-    scanf("%d", &tmp);
-    insert_ordinary_heap(tmp, H2);
-  }
+  /* copy heap since a merge operation destroy the original heap */
+  for (rpt = 1; rpt < REPEAT; rpt++)
+    for (merge_cnt = 0; merge_cnt < merges; merge_cnt++)
+      H[rpt][merge_cnt] = copy_heap(H[0][merge_cnt], H[rpt][merge_cnt]);
 
   /* Start test */
   start = clock();
 
-  if (method == INSERT)
-    H = merge_ordinary_heap_insert(H1, H2);
-  else
-    H = merge_ordinary_heap_build(H1, H2);
+  for (rpt = 0; rpt < REPEAT; rpt++)
+    for (merge_cnt = 0; merge_cnt < merges - 1; merge_cnt++)
+      H[rpt][merge_cnt + 1] = merge_heap(H[rpt][merge_cnt + 1],
+                                         H[rpt][merge_cnt]);
 
   stop = clock();
   duration = ((double)(stop - start)) / CLOCKS_PER_SEC;
@@ -63,6 +69,30 @@ int main(void){
   printf("%lf\n", duration);
 
   return 0;
+}
+
+/* A optimized version of merging on ordinary heaps */
+OrdinaryHeap merge_heap(OrdinaryHeap H1, OrdinaryHeap H2){
+  double ratio;
+
+  if (H1->size > H2->size)
+    ratio = (double)H2->size / H1->size;
+  else
+    ratio = (double)H1->size / H2->size;
+
+  if (ratio < 0.3)
+    return merge_ordinary_heap_insert(H1, H2);
+  else
+    return merge_ordinary_heap_build(H1, H2);
+}
+
+/* Copy heap, used for test since merge operation destroy the original */
+OrdinaryHeap copy_heap(OrdinaryHeap from, OrdinaryHeap to){
+  to = create_ordinary_heap(from->capacity);
+  memcpy(to->elements + 1, from->elements + 1, sizeof(int) * from->size);
+  to->size = from->size;
+
+  return to;
 }
 
 /* Create an ordinary heap */
