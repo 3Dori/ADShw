@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #define REPEAT 100
-#define MAX_MERGE 101
+#define MAX_MERGE 1001
 struct HeapNode;
 typedef struct HeapNode *PriorityQueue;
 
@@ -38,28 +38,42 @@ PriorityQueue insert(int x, PriorityQueue H)
 
 PriorityQueue Merge(PriorityQueue H1, PriorityQueue H2)
 {
-  PriorityQueue H3,x;
+  PriorityQueue H3,x,temp;
   if (H1 == NULL) return H2;
   if (H2 == NULL) return H1;
-  if (H1->up->element < H2->up->element) swap(&H1, &H2);
+  if (H1->up->element < H2->up->element){
+    temp = H1;
+    H1 = H2;
+    H2 = temp;
+  }
   H3 = H1->up; H1->up=H3->up; H3->up=H3;
   while (H1 != H3)
     {
-      if (H1->up->element < H2->up->element) swap(&H1, &H2);
+      if (H1->up->element < H2->up->element){
+        temp = H1;
+        H1 = H2;
+        H2 = temp;
+      }
       x = H1->up; H1->up = x->up;
       x->up = x->down; x->down = H3->up; H3->up = x;
       H3 = x;
     }
-  swap (&H2->up, &H3->up);
+  temp = H2->up;
+  H2->up = H3->up;
+  H3->up = temp;
   return H2;
 }
 
 PriorityQueue Deletemin(PriorityQueue H)
 {
-  PriorityQueue x,y1,y2,H3;
+  PriorityQueue x,y1,y2,H3,temp;
   if (H == NULL) return NULL;
   y1 = H->up; y2 = H->down;
-  if (y1->element <y2->element) swap(&y1, &y2);
+  if (y1->element <y2->element){
+    temp = y1;
+    y1 = y2;
+    y2 = temp;
+  }
   if (y1 == H) {
     free(H);
     return NULL;
@@ -67,7 +81,11 @@ PriorityQueue Deletemin(PriorityQueue H)
   H3 = y1; y1 = y1->up; H3->up = H3;
   while (1)
     {
-      if (y1->element < y2->element) swap(&y1, &y2);
+      if (y1->element < y2->element){
+        temp = y1;
+        y1 = y2;
+        y2 = temp;
+      }
       if (y1 == H) 
         {
           free(H);

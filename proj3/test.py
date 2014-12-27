@@ -66,11 +66,9 @@ def leftist_test_correctness():
             print(seq == sorted(seq))
 
 
-def leftist_skew_time():
-    size_set = range(0, 10001, 50)
-    merges_set = (100,)
-    programs = ('leftist', 'skew_recur', 'skew_iter', 'skew_btmup')
-    with open('leftist_skew_result.txt', 'w') as f:
+def leftist_skew_time(size_set, merges_set, output):
+    programs = ('leftist_iter', 'leftist_recur', 'skew_recur', 'skew_iter', 'skew_btmup')
+    with open(output, 'w') as f:
         f.write('')
 
     for size in size_set:
@@ -78,7 +76,7 @@ def leftist_skew_time():
             settings = "{} {}\n".format(size, merges)
             with open('settings.txt', 'w') as f:
                 f.write(settings)
-            with open('leftist_skew_result.txt', 'a') as f:
+            with open(output, 'a') as f:
                 for program in programs:
                     f.write('{} {}'.format(program, settings))
                     time = 0
@@ -88,8 +86,55 @@ def leftist_skew_time():
                     f.write('{:f}\n'.format(time))
 
 
+def leftist_iter_test():
+    size_set = range(100, 10001, 50)
+    merges = 100
+    program = 'leftist_iter'
+    with open('leftist_iter_result.txt', 'w') as f:
+        f.write('')
+
+    for size in size_set:
+        settings = '{} {}\n'.format(size, merges)
+        with open('settings.txt', 'w') as f:
+            f.write(settings)
+        with open('leftist_iter_result.txt', 'a') as f:
+            f.write('{} {}'.format(program, settings))
+            time = float(subprocess.check_output('./{}'.format(program), shell=True))
+            f.write('{:f}\n'.format(time))
+
+
+def leftist_skew_merge_amortized():
+    leftist_skew_time(size_set=(100000,),
+                      merges_set=range(10, 1001, 10),
+                      output='leftist_skew_merge_amortized.txt')
+
+def leftist_skew_time_size_random():
+    leftist_skew_time(size_set=list(range(0, 1000, 100)) + list(range(1000, 10001, 50)),
+                      merges_set=(100,),
+                      output='leftist_skew_time_size_random.txt')
+
+def leftist_skew_time_size_sorted():
+    leftist_skew_time(size_set=list(range(0, 1000, 100)) + list(range(1000, 10001, 50)),
+                      merges_set=(100,),
+                      output='leftist_skew_time_size_sorted.txt')
+
+def leftist_skew_time_size_reversed():
+    leftist_skew_time(size_set=list(range(0, 1000, 100)) + list(range(1000, 10001, 50)),
+                      merges_set=(100,),
+                      output='leftist_skew_time_size_reversed.txt')
+
+
 if __name__ == '__main__':
+    #leftist_skew_merge_amortized()
+    # replace the source code with those in temp
+    #leftist_skew_time_size_random()
+    # replace test_all.txt with test_sorted.txt
+    leftist_skew_time_size_sorted()
+    # replace test_all.txt with test_reversed.txt
+    #leftist_skew_time_size_reversed()
+    # rename
     #leftist_test_correctness()
     #leftist_skew_time()
-    ordinary_leftist_skew()
+    #leftist_iter_test()
+    #ordinary_leftist_skew()
     #ordinary_test()

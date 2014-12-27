@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #define REPEAT 100
-#define MAX_MERGE 101
+#define MAX_MERGE 1001
 struct TreeNode;
 typedef struct TreeNode *PriorityQueue;
 PriorityQueue Merge1(PriorityQueue H1 , PriorityQueue H2);
